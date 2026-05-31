@@ -18,14 +18,21 @@ roadmap items extend the package and the consumer story, not the bytes.
 - Size literacy: `makeShare`/`measureCapsule`/`channelFit`/`CHANNELS` — advisory,
   never gating (§14).
 - TypeScript types (`index.d.ts`).
+- **Playground** (`index.html`) — a single offline page that imports the real
+  `src/index.js` and does live encode (three forms + sizes) / decode / channel-fit
+  / the §6.4.1 fragment-escape visualizer. The GH Pages headline once enabled.
 
 ## Near-term (speced or obvious)
 
 - **`@gcu/capsule/bundled`** — single-file ESM build (§13), for single-file-ethos
   consumers (cradle) to inline a canonical bundle instead of a hand-maintained
   subset. `dist/` is already gitignored for it.
-- **GitHub Pages docs** at `gentropic.org/capsule` — spec + guide + a tiny static
-  encode/decode/QR playground (pure browser, fits the offline ethos).
+- **GitHub Pages** at `gentropic.org/capsule` — the playground (`index.html`) is
+  built and `.nojekyll` is in place; remaining: flip on Pages (Settings → Pages →
+  deploy from `main`, root). Then enhance the playground with **rendered QR** (needs
+  a vendored encoder, e.g. Nayuki's, to stay offline — currently it shows QR *fit*
+  only) and optionally **live reference-scheme resolution** (`gh:`/`gist:` over the
+  network). Canonical docs stay as the repo markdown, linked from the page.
 - **ep + cradle consume the package** instead of re-inlining a subset, and point
   their suites at this repo's `vectors.json` so all implementations share one set
   of fixtures. cradle keeps its single-file ethos via build-time inlining. This is

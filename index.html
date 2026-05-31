@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@gcu/capsule — playground</title>
+<style>
+  :root {
+    --bg: #0f1216; --panel: #171b21; --panel2: #1d222a; --ink: #e6e9ee;
+    --dim: #8b94a3; --line: #2a313b; --accent: #6ea8fe; --ok: #5ec98a;
+    --bad: #e0676b; --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.55 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  header { padding: 32px 20px 8px; max-width: 920px; margin: 0 auto; }
+  h1 { margin: 0 0 4px; font-size: 26px; letter-spacing: -.01em; }
+  h1 .at { color: var(--dim); font-weight: 400; }
+  .tagline { color: var(--dim); margin: 0 0 14px; max-width: 60ch; }
+  .links { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; }
+  main { max-width: 920px; margin: 0 auto; padding: 12px 20px 60px; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px; margin: 16px 0;
+  }
+  .panel h2 { margin: 0 0 4px; font-size: 16px; }
+  .panel .hint { color: var(--dim); font-size: 13px; margin: 0 0 14px; }
+  textarea, input[type=text] {
+    width: 100%; background: var(--panel2); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 12px; font: 13px/1.5 var(--mono); resize: vertical;
+  }
+  textarea:focus, input:focus { outline: none; border-color: var(--accent); }
+  label.row { display: block; font-size: 13px; color: var(--dim); margin: 12px 0 4px; }
+  .forms { display: grid; gap: 8px; margin-top: 14px; }
+  .form-line {
+    display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 10px;
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+  }
+  .form-line .scheme { font: 12px var(--mono); color: var(--accent); }
+  .form-line .val {
+    font: 12px var(--mono); color: var(--ink); overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; direction: rtl; text-align: left;
+  }
+  .form-line .size { font: 12px var(--mono); color: var(--dim); white-space: nowrap; }
+  .form-line button {
+    background: transparent; border: 1px solid var(--line); color: var(--dim);
+    border-radius: 6px; padding: 3px 8px; font-size: 12px; cursor: pointer;
+  }
+  .form-line button:hover { color: var(--ink); border-color: var(--accent); }
+  .fits { display: grid; gap: 3px; margin-top: 14px; }
+  .fit { display: grid; grid-template-columns: 20px 1fr auto auto; gap: 10px; align-items: center;
+         font-size: 13px; padding: 3px 6px; border-radius: 6px; }
+  .fit .mark { font: 13px var(--mono); }
+  .fit.ok .mark { color: var(--ok); } .fit.no .mark { color: var(--bad); }
+  .fit.no { color: var(--dim); }
+  .fit .lim, .fit .note { font: 12px var(--mono); color: var(--dim); }
+  .out { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px;
+         padding: 10px 12px; font: 13px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word;
+         min-height: 1.5em; margin-top: 8px; }
+  .out.err { color: var(--bad); }
+  .frag { display: grid; gap: 8px; margin-top: 12px; font: 12px/1.5 var(--mono); }
+  .frag .k { color: var(--dim); }
+  .frag .esc-hi { color: var(--accent); }
+  .badge { font: 11px var(--mono); padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line); color: var(--dim); }
+  .badge.ok { color: var(--ok); border-color: var(--ok); }
+  footer { max-width: 920px; margin: 0 auto; padding: 0 20px 50px; color: var(--dim); font-size: 13px; }
+  .pill { display:inline-block; font:11px var(--mono); color:var(--ok); border:1px solid var(--ok);
+          border-radius:5px; padding:1px 7px; }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="at">@gcu/</span>capsule</h1>
+  <p class="tagline">A compact string that resolves to bytes — carried inline (URL
+  fragment / QR) or referenced. This page runs the <strong>real package</strong>
+  (<code>src/index.js</code>) entirely in your browser; nothing is sent anywhere.</p>
+  <nav class="links">
+    <a href="https://github.com/gentropic/capsule">GitHub</a>
+    <a href="https://github.com/gentropic/capsule/blob/main/SPEC-capsule.md">Spec</a>
+    <a href="https://github.com/gentropic/capsule/blob/main/CAPSULES.md">Guide</a>
+    <a href="https://github.com/gentropic/capsule/blob/main/ROADMAP.md">Roadmap</a>
+    <span class="pill">offline · zero-dep</span>
+  </nav>
+</header>
+
+<main>
+  <!-- ENCODE -->
+  <section class="panel">
+    <h2>Encode</h2>
+    <p class="hint">Type anything. It's UTF-8 → deflate-raw → the three equivalent
+      inline forms. They all decode to the same bytes (§17).</p>
+    <textarea id="enc-in" rows="5" spellcheck="false">!menu1+pt-BR
+# Café Gentropia
+## Cafés
+Expresso | 6
+Pingado | 7
+</textarea>
+    <div class="forms" id="forms"></div>
+
+    <label class="row" for="base">Share URL base (the consumer the capsule opens in)</label>
+    <input type="text" id="base" value="https://gentropic.org/cradle" spellcheck="false">
+    <label class="row">QR-form share URL (<code>q:</code>, fragment-escaped)</label>
+    <div class="out" id="share-url"></div>
+
+    <div class="fits" id="fits"></div>
+    <div id="suggestion" style="margin-top:10px;color:var(--dim);font-size:13px"></div>
+  </section>
+
+  <!-- DECODE -->
+  <section class="panel">
+    <h2>Decode</h2>
+    <p class="hint">Paste a capsule (<code>inline:</code> / <code>i:</code> /
+      <code>q:</code>), a full share URL, or just a <code>#fragment</code>. Reference
+      schemes (<code>gh:</code>, <code>gist:</code>, …) resolve over the network.</p>
+    <textarea id="dec-in" rows="2" spellcheck="false"></textarea>
+    <div class="out" id="dec-out"></div>
+  </section>
+
+  <!-- FRAGMENT -->
+  <section class="panel">
+    <h2>The <code>q:</code> fragment gotcha (§6.4.1)</h2>
+    <p class="hint">base45 contains two characters a URL fragment can't carry —
+      <code>space</code> and <code>%</code>. Watch them get escaped, and round-trip back.</p>
+    <div class="frag" id="frag"></div>
+  </section>
+</main>
+
+<footer>
+  Rendered QR is coming (it needs a vendored encoder to stay offline) — for now the
+  fit table shows which QR version / channel the <code>q:</code> URL lands in.
+  &nbsp;·&nbsp; MIT © Geoscientific Chaos Union · spec is CC0.
+</footer>
+
+<script type="module">
+import {
+  encodeInline, decodeInlineText,
+  fragmentEncode, fragmentDecode,
+  measureCapsule,
+} from './src/index.js';
+
+const $ = id => document.getElementById(id);
+const enc = new TextEncoder();
+const bytes = s => enc.encode(s).length;
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+const SCHEMES = [['inline','inline:'], ['i','i:'], ['q','q:']];
+
+async function renderEncode() {
+  const text = $('enc-in').value;
+  const base = $('base').value.trim();
+
+  // three forms
+  const out = [];
+  for (const [form, label] of SCHEMES) {
+    let cap;
+    try { cap = await encodeInline(text, { form }); } catch (e) { cap = 'error: ' + e.message; }
+    out.push({ label, cap });
+  }
+  $('forms').innerHTML = out.map(({label, cap}) => `
+    <div class="form-line">
+      <span class="scheme">${esc(label)}</span>
+      <span class="val" title="${esc(cap)}">${esc(cap)}</span>
+      <span class="size">${bytes(cap)} B <button data-cap="${esc(cap)}">copy</button></span>
+    </div>`).join('');
+
+  // share URL + channel fit (from the q: form)
+  const q = out[2].cap;
+  const m = measureCapsule(q, { baseUrl: base });
+  const url = base + '#' + m.fragment;
+  $('share-url').textContent = url;
+
+  $('fits').innerHTML = m.fits.map(f => `
+    <div class="fit ${f.ok ? 'ok' : 'no'}">
+      <span class="mark">${f.ok ? '✓' : '✗'}</span>
+      <span>${esc(f.label)}</span>
+      <span class="lim">≤ ${f.urlBytes}</span>
+      <span class="note">${esc(f.note)}</span>
+    </div>`).join('');
+
+  const fit = m.tightestFit;
+  $('suggestion').textContent = `URL is ${m.urlBytes} B — ` + (fit
+    ? `tightest channel it fits: ${fit}.`
+    : `fits no listed channel; publish to a host and share a reference capsule.`);
+
+  renderFragment(q);
+}
+
+function renderFragment(q) {
+  const escd = fragmentEncode(q);
+  const round = fragmentDecode(escd);
+  const changed = escd !== q;
+  const hi = esc(escd).replace(/%25/g, '<span class="esc-hi">%25</span>')
+                      .replace(/%20/g, '<span class="esc-hi">%20</span>');
+  $('frag').innerHTML = `
+    <div><span class="k">raw capsule&nbsp;&nbsp;</span>${esc(q)}</div>
+    <div><span class="k">in fragment</span>${hi}
+      ${changed ? '' : '<span class="badge">no change — base64url has neither char</span>'}</div>
+    <div><span class="k">round-trips&nbsp;</span>
+      <span class="badge ${round === q ? 'ok' : ''}">${round === q ? '✓ fragmentDecode → identical' : '✗ MISMATCH'}</span></div>`;
+}
+
+async function renderDecode() {
+  const raw = $('dec-in').value.trim();
+  const elt = $('dec-out');
+  if (!raw) { elt.textContent = ''; elt.classList.remove('err'); return; }
+  // accept a full URL / fragment / bare capsule
+  let cap = raw;
+  const hash = raw.lastIndexOf('#');
+  if (hash >= 0) cap = raw.slice(hash + 1);
+  cap = fragmentDecode(cap);
+  try {
+    const text = await decodeInlineText(cap);
+    elt.textContent = text;
+    elt.classList.remove('err');
+  } catch (e) {
+    elt.textContent = e.message + (e.message === 'EUNKNOWN'
+      ? '  (reference schemes resolve over the network — not wired in this demo)' : '');
+    elt.classList.add('err');
+  }
+}
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('button[data-cap]');
+  if (b) { navigator.clipboard?.writeText(b.dataset.cap); b.textContent = '✓'; setTimeout(() => b.textContent = 'copy', 900); }
+});
+$('enc-in').addEventListener('input', renderEncode);
+$('base').addEventListener('input', renderEncode);
+$('dec-in').addEventListener('input', renderDecode);
+
+renderEncode();
+</script>
+</body>
+</html>
