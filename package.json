@@ -1,0 +1,60 @@
+{
+  "name": "@gcu/capsule",
+  "version": "0.1.0",
+  "description": "Fragment-based content addressing for browser-native tools — a compact string that resolves to bytes, carried inline (URL fragment / QR) or referenced (GitHub, gist, Zenodo, …). Zero runtime dependencies.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Geoscientific Chaos Union",
+  "homepage": "https://gentropic.org/capsule",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gentropic/capsule.git"
+  },
+  "keywords": [
+    "capsule",
+    "content-addressing",
+    "url-fragment",
+    "qr",
+    "base45",
+    "deflate",
+    "share-link",
+    "gcu",
+    "offline"
+  ],
+  "files": [
+    "src",
+    "SPEC-capsule.md",
+    "CAPSULES.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./codecs": "./src/codecs.js",
+    "./dispatcher": "./src/dispatcher.js",
+    "./loaders/inline": "./src/loaders/inline.js",
+    "./loaders/url": "./src/loaders/url.js",
+    "./loaders/gh": "./src/loaders/gh.js",
+    "./loaders/gist": "./src/loaders/gist.js",
+    "./loaders/zenodo": "./src/loaders/zenodo.js",
+    "./loaders/doi": "./src/loaders/doi.js",
+    "./loaders/rentry": "./src/loaders/rentry.js"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "pako": "^2"
+  },
+  "peerDependenciesMeta": {
+    "pako": {
+      "optional": true
+    }
+  }
+}

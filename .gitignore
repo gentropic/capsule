@@ -1,0 +1,22 @@
+# Agent context — personal, never committed (sibling GCU convention).
+# cradle commits its CLAUDE.md on purpose; this repo does not.
+CLAUDE.md
+CLAUDE.local.md
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build output (the bundled single-file ESM, when the build lands)
+dist/
+build/out/
+
+# Editor / OS cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+*.tmp
