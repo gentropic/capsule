@@ -322,11 +322,21 @@ link that silently fails in some channels.
 
 | channel | safe URL bytes | note |
 |---|---:|---|
+| SMS | ~160 | single GSM segment |
+| QR v10 (M ECC) | ~270 | gacha-sticker scale, ~1 inch |
 | QR v15 (M ECC) | ~500 | scans casually from a phone |
 | QR v20 (M ECC) | ~800 | larger but still reliable |
+| Email (safe) | ~2 000 | some gateways reject longer |
 | Twitter/X, Slack unfurl | ~4 000 | char limits; URL counts in full |
-| Email (safe / typical) | ~2 000 / ~8 000 | some gateways reject longer |
+| Telegram | ~4 096 | per-message character cap |
+| Email (typical) | ~8 000 | common practical ceiling |
+| WhatsApp / Signal | ~8 000 | long links stay clickable (~practical) |
 | Address bar (Chrome/FF) | ~32 000 | some servers truncate lower |
+
+These are *practical* "scans/pastes reliably" figures, not hard protocol maxima
+— verify against your real target if a few hundred bytes matter. `@gcu/capsule`
+exports this same table as `CHANNELS` (and `makeShare` / `measureCapsule` /
+`channelFit` compute fit from it), so a live size readout and this doc don't drift.
 
 deflate-raw ratios on typical text: prose 5–8×, mixed code 3–5×, already-minified 2–3×,
 pasted CSV/JSON 1.5–2×. Rule of thumb to fit a channel with safe capacity `K`: keep

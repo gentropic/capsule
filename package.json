@@ -23,6 +23,8 @@
   ],
   "files": [
     "src",
+    "index.d.ts",
+    "vectors.json",
     "SPEC-capsule.md",
     "CAPSULES.md",
     "README.md",
@@ -30,9 +32,14 @@
   ],
   "main": "./src/index.js",
   "module": "./src/index.js",
+  "types": "./index.d.ts",
   "exports": {
-    ".": "./src/index.js",
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./src/index.js"
+    },
     "./codecs": "./src/codecs.js",
+    "./share": "./src/share.js",
     "./dispatcher": "./src/dispatcher.js",
     "./loaders/inline": "./src/loaders/inline.js",
     "./loaders/url": "./src/loaders/url.js",
@@ -44,7 +51,8 @@
   },
   "sideEffects": false,
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "vectors": "node scripts/gen-vectors.js"
   },
   "engines": {
     "node": ">=18"

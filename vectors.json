@@ -1,0 +1,645 @@
+{
+  "spec": "SPEC-capsule §17.1",
+  "version": 1,
+  "note": "Conformance fixtures. base45/base64url/fragment are canonical both ways; decode is capsule→bytes (deflate output is not canonical, so these compressed capsules are valid examples, not the only valid encoding); roundtrip pins encode→decode for the deflate forms.",
+  "base45": [
+    {
+      "bytes": [],
+      "text": ""
+    },
+    {
+      "bytes": [
+        0
+      ],
+      "text": "00"
+    },
+    {
+      "bytes": [
+        255
+      ],
+      "text": "U5"
+    },
+    {
+      "bytes": [
+        0,
+        1,
+        2,
+        253,
+        254,
+        255
+      ],
+      "text": "1000H0TAW"
+    },
+    {
+      "bytes": [
+        72,
+        105
+      ],
+      "text": ".69"
+    },
+    {
+      "bytes": [
+        99,
+        97,
+        102,
+        195,
+        169,
+        32,
+        226,
+        152,
+        149
+      ],
+      "text": "GPCR:C6HL3TSE3"
+    }
+  ],
+  "base64url": [
+    {
+      "bytes": [],
+      "text": ""
+    },
+    {
+      "bytes": [
+        0
+      ],
+      "text": "AA"
+    },
+    {
+      "bytes": [
+        255
+      ],
+      "text": "_w"
+    },
+    {
+      "bytes": [
+        0,
+        1,
+        2,
+        253,
+        254,
+        255
+      ],
+      "text": "AAEC_f7_"
+    },
+    {
+      "bytes": [
+        72,
+        105
+      ],
+      "text": "SGk"
+    },
+    {
+      "bytes": [
+        99,
+        97,
+        102,
+        195,
+        169,
+        32,
+        226,
+        152,
+        149
+      ],
+      "text": "Y2Fmw6kg4piV"
+    }
+  ],
+  "fragment": [
+    {
+      "raw": "",
+      "escaped": ""
+    },
+    {
+      "raw": "plain",
+      "escaped": "plain"
+    },
+    {
+      "raw": "a b c",
+      "escaped": "a%20b%20c"
+    },
+    {
+      "raw": "100%",
+      "escaped": "100%25"
+    },
+    {
+      "raw": "%20",
+      "escaped": "%2520"
+    },
+    {
+      "raw": "% 20%",
+      "escaped": "%25%2020%25"
+    },
+    {
+      "raw": "x%25y",
+      "escaped": "x%2525y"
+    },
+    {
+      "raw": "q:d8N9C7%S7 RKUU8",
+      "escaped": "q:d8N9C7%25S7%20RKUU8"
+    },
+    {
+      "raw": "q:r+8D VD82EK4F.KE5TC",
+      "escaped": "q:r+8D%20VD82EK4F.KE5TC"
+    }
+  ],
+  "decode": [
+    {
+      "capsule": "i:rSGkh",
+      "bytes": [
+        72,
+        105,
+        33
+      ],
+      "desc": "i:r raw \"Hi!\""
+    },
+    {
+      "capsule": "q:r.69X0",
+      "bytes": [
+        72,
+        105,
+        33
+      ],
+      "desc": "q:r raw \"Hi!\""
+    },
+    {
+      "capsule": "inline:raw:SGkh",
+      "bytes": [
+        72,
+        105,
+        33
+      ],
+      "desc": "inline:raw: raw \"Hi!\""
+    },
+    {
+      "capsule": "i:dy0jNyclXKM8vyknhAgA",
+      "bytes": [
+        104,
+        101,
+        108,
+        108,
+        111,
+        32,
+        119,
+        111,
+        114,
+        108,
+        100,
+        10
+      ],
+      "desc": "i deflate (12 chars)"
+    },
+    {
+      "capsule": "q:dKVPV0QIKP775*16DF9HB0",
+      "bytes": [
+        104,
+        101,
+        108,
+        108,
+        111,
+        32,
+        119,
+        111,
+        114,
+        108,
+        100,
+        10
+      ],
+      "desc": "q deflate (12 chars)"
+    },
+    {
+      "capsule": "inline:deflate:y0jNyclXKM8vyknhAgA",
+      "bytes": [
+        104,
+        101,
+        108,
+        108,
+        111,
+        32,
+        119,
+        111,
+        114,
+        108,
+        100,
+        10
+      ],
+      "desc": "inline deflate (12 chars)"
+    },
+    {
+      "capsule": "i:dc8jMKygt4UrOL0pVsFXwC4wHsbgc8ktLCkpLNLLTNblyE4uLFWwVihNzC3JS40E8DZAaHQVThVwdBSM9c4V0_eRcY00uAA",
+      "bytes": [
+        64,
+        105,
+        110,
+        112,
+        117,
+        116,
+        10,
+        99,
+        111,
+        114,
+        101,
+        32,
+        61,
+        32,
+        78,
+        81,
+        95,
+        99,
+        111,
+        114,
+        101,
+        10,
+        64,
+        111,
+        117,
+        116,
+        112,
+        117,
+        116,
+        40,
+        107,
+        103,
+        41,
+        10,
+        109,
+        97,
+        115,
+        115,
+        32,
+        61,
+        32,
+        115,
+        97,
+        109,
+        112,
+        108,
+        101,
+        95,
+        109,
+        97,
+        115,
+        115,
+        40,
+        99,
+        111,
+        114,
+        101,
+        44,
+        32,
+        53,
+        32,
+        109,
+        44,
+        32,
+        50,
+        46,
+        55,
+        32,
+        103,
+        47,
+        99,
+        109,
+        51,
+        41,
+        10
+      ],
+      "desc": "i deflate (75 chars)"
+    },
+    {
+      "capsule": "q:dUSEM PP35TLS/2Q*H96DMQFURVH1LMUT3FN9OD1$M9ERMSZ6/IE%SH*V2OW2TK25K1OLA5B87W1PD3DU0U%G4U3LK48REOZE5*S-OCV 5",
+      "bytes": [
+        64,
+        105,
+        110,
+        112,
+        117,
+        116,
+        10,
+        99,
+        111,
+        114,
+        101,
+        32,
+        61,
+        32,
+        78,
+        81,
+        95,
+        99,
+        111,
+        114,
+        101,
+        10,
+        64,
+        111,
+        117,
+        116,
+        112,
+        117,
+        116,
+        40,
+        107,
+        103,
+        41,
+        10,
+        109,
+        97,
+        115,
+        115,
+        32,
+        61,
+        32,
+        115,
+        97,
+        109,
+        112,
+        108,
+        101,
+        95,
+        109,
+        97,
+        115,
+        115,
+        40,
+        99,
+        111,
+        114,
+        101,
+        44,
+        32,
+        53,
+        32,
+        109,
+        44,
+        32,
+        50,
+        46,
+        55,
+        32,
+        103,
+        47,
+        99,
+        109,
+        51,
+        41,
+        10
+      ],
+      "desc": "q deflate (75 chars)"
+    },
+    {
+      "capsule": "inline:deflate:c8jMKygt4UrOL0pVsFXwC4wHsbgc8ktLCkpLNLLTNblyE4uLFWwVihNzC3JS40E8DZAaHQVThVwdBSM9c4V0_eRcY00uAA",
+      "bytes": [
+        64,
+        105,
+        110,
+        112,
+        117,
+        116,
+        10,
+        99,
+        111,
+        114,
+        101,
+        32,
+        61,
+        32,
+        78,
+        81,
+        95,
+        99,
+        111,
+        114,
+        101,
+        10,
+        64,
+        111,
+        117,
+        116,
+        112,
+        117,
+        116,
+        40,
+        107,
+        103,
+        41,
+        10,
+        109,
+        97,
+        115,
+        115,
+        32,
+        61,
+        32,
+        115,
+        97,
+        109,
+        112,
+        108,
+        101,
+        95,
+        109,
+        97,
+        115,
+        115,
+        40,
+        99,
+        111,
+        114,
+        101,
+        44,
+        32,
+        53,
+        32,
+        109,
+        44,
+        32,
+        50,
+        46,
+        55,
+        32,
+        103,
+        47,
+        99,
+        109,
+        51,
+        41,
+        10
+      ],
+      "desc": "inline deflate (75 chars)"
+    },
+    {
+      "capsule": "i:dU8xNzSs11C4o0XUK4lJWcE5MO7ySSxnKKOZyrSgoSi0uzleoUTDjAgA",
+      "bytes": [
+        33,
+        109,
+        101,
+        110,
+        117,
+        49,
+        43,
+        112,
+        116,
+        45,
+        66,
+        82,
+        10,
+        35,
+        32,
+        67,
+        97,
+        102,
+        195,
+        169,
+        10,
+        35,
+        35,
+        32,
+        67,
+        97,
+        102,
+        195,
+        169,
+        115,
+        10,
+        69,
+        120,
+        112,
+        114,
+        101,
+        115,
+        115,
+        111,
+        32,
+        124,
+        32,
+        54,
+        10
+      ],
+      "desc": "i deflate (42 chars)"
+    },
+    {
+      "capsule": "q:dWQAR$9 K53$Q975$ZENRSX-AJ+9$O7BMIWB3U75HMEK35:G9C-5U3B*BAJVS00",
+      "bytes": [
+        33,
+        109,
+        101,
+        110,
+        117,
+        49,
+        43,
+        112,
+        116,
+        45,
+        66,
+        82,
+        10,
+        35,
+        32,
+        67,
+        97,
+        102,
+        195,
+        169,
+        10,
+        35,
+        35,
+        32,
+        67,
+        97,
+        102,
+        195,
+        169,
+        115,
+        10,
+        69,
+        120,
+        112,
+        114,
+        101,
+        115,
+        115,
+        111,
+        32,
+        124,
+        32,
+        54,
+        10
+      ],
+      "desc": "q deflate (42 chars)"
+    },
+    {
+      "capsule": "inline:deflate:U8xNzSs11C4o0XUK4lJWcE5MO7ySSxnKKOZyrSgoSi0uzleoUTDjAgA",
+      "bytes": [
+        33,
+        109,
+        101,
+        110,
+        117,
+        49,
+        43,
+        112,
+        116,
+        45,
+        66,
+        82,
+        10,
+        35,
+        32,
+        67,
+        97,
+        102,
+        195,
+        169,
+        10,
+        35,
+        35,
+        32,
+        67,
+        97,
+        102,
+        195,
+        169,
+        115,
+        10,
+        69,
+        120,
+        112,
+        114,
+        101,
+        115,
+        115,
+        111,
+        32,
+        124,
+        32,
+        54,
+        10
+      ],
+      "desc": "inline deflate (42 chars)"
+    }
+  ],
+  "roundtrip": [
+    {
+      "text": "hello world\n",
+      "forms": [
+        "i",
+        "q",
+        "inline"
+      ]
+    },
+    {
+      "text": "@input\ncore = NQ_core\n@output(kg)\nmass = sample_mass(core, 5 m, 2.7 g/cm3)\n",
+      "forms": [
+        "i",
+        "q",
+        "inline"
+      ]
+    },
+    {
+      "text": "!menu1+pt-BR\n# Café\n## Cafés\nExpresso | 6\n",
+      "forms": [
+        "i",
+        "q",
+        "inline"
+      ]
+    }
+  ]
+}

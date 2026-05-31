@@ -123,12 +123,50 @@ await d.resolve(cap);
 Omitting dictionary support entirely is conforming — such capsules then reject
 with `EUNSUPPORTEDCODEC`.
 
+## Size literacy (never gating)
+
+`makeShare` encodes content and reports which channels its share URL fits in —
+but **always returns the capsule**. It measures; it never refuses.
+
+```js
+import { makeShare } from '@gcu/capsule';
+
+const r = await makeShare(menuText, { baseUrl: 'https://gentropic.org/cradle' });
+r.capsule;       // "q:d…" — always present
+r.urlBytes;      // full share-URL length (base + '#' + fragment-escaped capsule)
+r.tightestFit;   // e.g. 'qr-v15' — the most constrained channel it still fits
+r.fits;          // [{ id:'qr-v15', label:'QR v15 (M ECC)', urlBytes:500, ok:true }, …]
+r.suggestion;    // advisory text only when it fits nothing useful, else null
+```
+
+The per-channel limits live in the exported `CHANNELS` table (SMS, QR versions,
+Telegram, WhatsApp, email, address bar — mirrored in CAPSULES.md §6). Use
+`measureCapsule(capsule, { baseUrl })` or `channelFit(len)` to measure without
+re-encoding. They're practical "scans/pastes reliably" figures, not hard maxima.
+
+## Conformance vectors
+
+`vectors.json` ships shared fixtures any implementation can run (`npm run
+vectors` regenerates them). They're grouped by how canonical each is:
+`base45` / `base64url` / `fragment` are canonical **both ways**; `decode` pins
+`capsule → bytes` (one direction, since deflate output isn't canonical — two
+conforming deflators can emit different valid bytes); `roundtrip` pins
+`encode → decode` for the compressed forms. `SPEC-capsule.md` §17.1 is normative
+on the distinction. ep, cradle, and any future port should pass this same file.
+
+## TypeScript
+
+Ships `index.d.ts` — `Dispatcher`, `Loader`, `ResolutionContext`, encode/decode
+and share option/result types, all exported.
+
 ## API
 
 - `createDispatcher(init?)` → `{ register, unregister, has, resolve }`
 - `resolve(capsule, ctx?)` — convenience over a lazily-created default dispatcher
 - `encodeInline(content, opts?)` — `content` is a string (UTF-8) or bytes
 - `decodeInline(capsule, opts?)` / `decodeInlineText(capsule, opts?)`
+- `makeShare(content, opts?)` / `measureCapsule(capsule, opts?)` /
+  `channelFit(len)` / `CHANNELS` — size literacy
 - codec primitives: `fragmentEncode/Decode`, `bytesToBase45/base45ToBytes`,
   `bytesToB64Url/b64UrlToBytes`, `deflateRaw/inflateRaw`
 - every loader as a named export for selective registration

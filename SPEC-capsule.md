@@ -558,29 +558,57 @@ The total unminified size of `@gcu/capsule/bundled` SHOULD be under 20 KB. The s
 
 ### 14. Share-side API (encoding content → capsules)
 
-Generating capsules is the inverse operation to resolution. The package also exports a share API:
+Generating capsules is the inverse operation to resolution. The package also exports a share API.
+
+**Size literacy, not size limiting.** The share API MUST always return the
+encoded capsule. It MUST NOT refuse to encode, or substitute a different result,
+merely because the capsule is large — size is the caller's decision. The API's
+job is to *measure* the result and *report* which channels its share URL fits
+in, so the caller can choose to trim, switch to a reference scheme, or ship it
+as-is. (An earlier draft returned a "publish-plan instead of" an inline capsule
+once a budget was exceeded; that gating is removed — the capsule is always
+returned, and the over-budget hint is advisory only.)
 
 ```ts
 interface ShareOptions {
-  // Target channel size budget, in bytes of encoded capsule. If the
-  // inline form would exceed this, the result is a publish plan instead.
-  budget?: number;
-  // Preferred publish target, if inline does not fit.
-  publishTo?: "rentry" | "gist" | null;
-  // Optional dictionary for deflate-dict.* codec.
-  dictionary?: { id: string; bytes: Uint8Array };
+  form?: "i" | "q" | "inline";   // default "q" — QR-oriented (the tightest channel)
+  codec?: "raw" | "deflate";     // default "deflate"
+  dictId?: string;               // → deflate-dict.<id> (q: / inline: only)
+  dictionary?: Uint8Array;       // required when dictId is set
+  backend?: DeflateBackend;      // pako-shaped, for the dictionary path
+  baseUrl?: string;              // origin+path the capsule rides on, for URL math
 }
 
-type ShareResult =
-  | { kind: "inline"; capsule: string; size: number }
-  | { kind: "publish-plan"; target: string; reason: string; estimatedSize: number };
+interface Channel { id: string; label: string; urlBytes: number; note: string; }
 
-function makeShare(content: Uint8Array, opts?: ShareOptions): Promise<ShareResult>;
+interface ShareResult {
+  capsule: string;               // ALWAYS present
+  capsuleBytes: number;
+  fragment: string;              // the §6.4.1 fragment-escaped capsule
+  urlBytes: number;              // full URL length (incl. baseUrl + '#') if baseUrl given
+  fits: (Channel & { ok: boolean })[];
+  tightestFit: string | null;    // id of the most-constrained channel it still fits
+  suggestion: string | null;     // advisory only — never withholds the capsule
+}
+
+function makeShare(content: Uint8Array | string, opts?: ShareOptions): Promise<ShareResult>;
 ```
 
-`makeShare` encodes `content` with the `deflate` codec, measures the result, and either returns an inline capsule or a plan for the caller to fulfill (e.g., by POSTing to rentry). The plan-based approach keeps the actual publish side-effect out of `@gcu/capsule` — the package never performs writes, only reads.
+`makeShare` encodes `content` (default `deflate`/`q:`), measures it, and reports
+its channel fit. A `CHANNELS` table of per-channel safe URL lengths (QR
+versions, messaging apps, email, address bar) is exported as the single source
+of truth for the `fits` computation; `channelFit(urlByteLength)` and
+`measureCapsule(capsule, { baseUrl })` are exported for callers that want to
+measure without re-encoding. The channel figures are *practical* "scans/pastes
+reliably" numbers, not hard protocol maxima — see Appendix C.
 
-Writes (e.g., rentry POST, gist creation) are left to the shell or to companion packages (`@gcu/capsule-publish`, if it ever exists).
+Publishing to a reference host (rentry POST, gist creation) is a write, and so
+is out of scope: `@gcu/capsule` never performs writes (§14 invariant), only
+reads. When a capsule is too large to share inline through the caller's target
+channel, the caller may choose to publish it elsewhere and share a reference
+capsule (`gh:`/`gist:`/`rentry:`/…) instead; `makeShare`'s `suggestion` names
+that option but takes no action. Writes are left to the shell or to companion
+packages (`@gcu/capsule-publish`, if it ever exists).
 
 ### 15. Badge protocol
 
@@ -669,6 +697,35 @@ A conforming implementation of `@gcu/capsule`:
 - MUST handle the error classification in §8.2.
 - MUST NOT perform writes (publish side effects) from a loader.
 - MUST be implementable with at most one runtime dependency (pako, for `deflate-dict.*` support) on a modern browser. Implementations omitting dictionary support are zero-dependency.
+
+#### 17.1 Test vectors
+
+The reference implementation ships a `vectors.json` of shared conformance
+fixtures that any implementation — the reference, a port, a re-inlined subset —
+SHOULD be able to pass. The fixtures are grouped by *how canonical* they are,
+which is a normative distinction:
+
+- **`base45`, `base64url`** — canonical **both ways**. For the given bytes an
+  implementation MUST produce exactly the given string, and decoding the string
+  MUST produce exactly the given bytes. The base alphabets are deterministic.
+- **`fragment`** — canonical **both ways**. For the given raw string,
+  `fragmentEncode` (§6.4.1) MUST produce exactly the given escaped string, and
+  `fragmentDecode` MUST reverse it. The escaping is deterministic.
+- **`decode`** — capsule string → expected bytes, **one direction only**. Every
+  conforming decoder MUST decode the given capsule to exactly the given bytes.
+  Note carefully: this is *not* reversible into an encode vector for the
+  compressed codecs, because **`deflate` output is not canonical** — two
+  conforming deflators MAY emit different (equally valid) compressed bytes for
+  the same input. The compressed capsules in this section are therefore valid
+  *examples* a decoder must accept, not the unique encoding of their content.
+- **`roundtrip`** — text that MUST survive `encodeInline` → `decodeInline` in
+  each listed form. This is the only pinnable property for the compressed forms,
+  precisely because exact compressed bytes are not canonical.
+
+A conforming implementation MUST pass the `base45`, `base64url`, `fragment`, and
+`decode` vectors, and the `roundtrip` vectors for every form it implements.
+Implementations MUST NOT assert exact-byte equality against an encoder for a
+compressed codec; doing so would falsely reject a conforming peer.
 
 ---
 

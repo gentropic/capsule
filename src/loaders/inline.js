@@ -53,9 +53,12 @@ function parseCompactQ(body) {
   let codec = compactCodecName(body[0]);
   let rest = body.slice(1);
   let dictId = null;
-  if (rest[0] === '.') {
+  // Dict prefix is `.<dict-id>_` — but `.` is ALSO a base45 character, so a
+  // plain payload can legitimately start with `.`. The disambiguator is `_`:
+  // it is NOT in the base45 alphabet, so its presence unambiguously marks a
+  // dict prefix. A leading `.` with no following `_` is just base45 data.
+  if (rest[0] === '.' && rest.includes('_')) {
     const us = rest.indexOf('_');
-    if (us < 0) throw new Error('EDECODE');
     dictId = rest.slice(1, us);
     if (!dictId) throw new Error('EDECODE');
     rest = rest.slice(us + 1);
