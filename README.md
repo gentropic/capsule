@@ -181,6 +181,8 @@ Errors are classified by a stable prefix (`ENOSCHEME`, `EUNKNOWN`, `EFETCH`,
   canonical home of the format lives here.
 - **[`CAPSULES.md`](./CAPSULES.md)** — the hands-on guide: paste-ready
   producer/consumer code, the `q:` escaping gotcha, size budgeting, anti-patterns.
+- **[`ROADMAP.md`](./ROADMAP.md)** — where this is headed (and the deliberately
+  deferred ideas, like capsule-as-config-delivery).
 
 ## Develop
 
