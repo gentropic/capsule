@@ -56,7 +56,7 @@
     "vectors": "node scripts/gen-vectors.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.12.0"
   },
   "peerDependencies": {
     "pako": "^2"

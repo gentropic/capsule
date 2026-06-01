@@ -190,6 +190,10 @@ Errors are classified by a stable prefix (`ENOSCHEME`, `EUNKNOWN`, `EFETCH`,
 node --test          # zero-dependency suite (node:test)
 ```
 
+Requires **Node ≥ 20.12** (when `CompressionStream` gained `deflate-raw`; 18 lacks
+it). In the browser, `deflate-raw` is available across the 2023+ targets the
+package supports — this floor is only about the Node test/CLI runtime.
+
 Conformance: round-trips across all three inline forms, the §6.4.1 fragment
 escaping (incl. the adversarial `%20` case), the dictionary path end-to-end
 (via a `node:zlib` stand-in for pako), the full dispatcher contract, and every
