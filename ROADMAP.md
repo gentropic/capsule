@@ -20,7 +20,9 @@ roadmap items extend the package and the consumer story, not the bytes.
 - TypeScript types (`index.d.ts`).
 - **Playground** (`index.html`) — a single offline page that imports the real
   `src/index.js` and does live encode (three forms + sizes) / decode / channel-fit
-  / the §6.4.1 fragment-escape visualizer. The GH Pages headline once enabled.
+  / the §6.4.1 fragment-escape visualizer / **rendered QR** (vendored Nayuki, MIT).
+  Themed with **GCU Switchboard** tokens + vendored Barlow/Space Mono (OFL),
+  light/dark toggle. The GH Pages headline once enabled.
 
 ## Near-term (speced or obvious)
 
@@ -28,11 +30,11 @@ roadmap items extend the package and the consumer story, not the bytes.
   consumers (cradle) to inline a canonical bundle instead of a hand-maintained
   subset. `dist/` is already gitignored for it.
 - **GitHub Pages** at `gentropic.org/capsule` — the playground (`index.html`) is
-  built and `.nojekyll` is in place; remaining: flip on Pages (Settings → Pages →
-  deploy from `main`, root). Then enhance the playground with **rendered QR** (needs
-  a vendored encoder, e.g. Nayuki's, to stay offline — currently it shows QR *fit*
-  only) and optionally **live reference-scheme resolution** (`gh:`/`gist:` over the
-  network). Canonical docs stay as the repo markdown, linked from the page.
+  built (Switchboard-themed, rendered QR, light/dark) and `.nojekyll` is in place;
+  remaining: flip on Pages (Settings → Pages → deploy from `main`, root).
+  Optional later: **live reference-scheme resolution** in the decode box
+  (`gh:`/`gist:` over the network). Canonical docs stay as the repo markdown,
+  linked from the page.
 - **ep + cradle consume the package** instead of re-inlining a subset, and point
   their suites at this repo's `vectors.json` so all implementations share one set
   of fixtures. cradle keeps its single-file ethos via build-time inlining. This is

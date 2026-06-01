@@ -1,80 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>@gcu/capsule — playground</title>
+<!-- QR Code generator library © Project Nayuki, MIT — vendored verbatim (see vendor/qrcodegen.js header) -->
+<script src="vendor/qrcodegen.js"></script>
 <style>
+  /* ── Switchboard tokens (GCU canonical design system, MIT) ───────── */
+  @font-face { font-family:'Barlow'; src:url('fonts/barlow-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+  @font-face { font-family:'Barlow'; src:url('fonts/barlow-600.woff2') format('woff2'); font-weight:600; font-display:swap; }
+  @font-face { font-family:'Barlow'; src:url('fonts/barlow-700.woff2') format('woff2'); font-weight:700; font-display:swap; }
+  @font-face { font-family:'Space Mono'; src:url('fonts/space-mono-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+  @font-face { font-family:'Space Mono'; src:url('fonts/space-mono-700.woff2') format('woff2'); font-weight:700; font-display:swap; }
+
   :root {
-    --bg: #0f1216; --panel: #171b21; --panel2: #1d222a; --ink: #e6e9ee;
-    --dim: #8b94a3; --line: #2a313b; --accent: #6ea8fe; --ok: #5ec98a;
-    --bad: #e0676b; --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+    --sw-bg-deep:#C2C1BE; --sw-bg:#D2D1CE; --sw-bg-raised:#E4E3E1; --sw-bg-bright:#EDECEB;
+    --sw-text:#232322; --sw-text-mid:#504F4C; --sw-text-soft:#7A7875;
+    --sw-border:#B3B1AD; --sw-border-soft:#C6C4C1; --sw-rule:#A5A3A0;
+    --sw-orange:#B54E1A; --sw-orange-soft:#E8D8CF; --sw-teal:#1B6B72; --sw-teal-soft:#CEE2E4;
+    --sw-green:#3D7340; --sw-green-soft:#D2E4D4; --sw-amber:#8E6518; --sw-amber-soft:#E4DCCC;
+    --sw-red:#A8312A; --sw-red-soft:#E8D6D4; --sw-indigo:#4E5580; --sw-indigo-soft:#D8D9E2;
+    --sw-radius:3px; --sw-radius-lg:4px;
+    --sw-mono:'Space Mono','JetBrains Mono',Consolas,monospace;
+    --sw-sans:'Barlow',system-ui,sans-serif;
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--bg); color: var(--ink);
-    font: 15px/1.55 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  html[data-theme="dark"] {
+    --sw-bg-deep:#0E1012; --sw-bg:#15171A; --sw-bg-raised:#1D2024; --sw-bg-bright:#25282D;
+    --sw-text:#DDDCDA; --sw-text-mid:#9E9C98; --sw-text-soft:#6E6C68;
+    --sw-border:#2F3338; --sw-border-soft:#24272B; --sw-rule:#3A3E44;
+    --sw-orange:#D4672E; --sw-orange-soft:#2E1F18; --sw-teal:#3A9BA3; --sw-teal-soft:#16272A;
+    --sw-green:#5A9B5E; --sw-green-soft:#18261A; --sw-amber:#C49540; --sw-amber-soft:#2A2316;
+    --sw-red:#D05048; --sw-red-soft:#2C1A18; --sw-indigo:#7E86B8; --sw-indigo-soft:#1E2030;
   }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  header { padding: 32px 20px 8px; max-width: 920px; margin: 0 auto; }
-  h1 { margin: 0 0 4px; font-size: 26px; letter-spacing: -.01em; }
-  h1 .at { color: var(--dim); font-weight: 400; }
-  .tagline { color: var(--dim); margin: 0 0 14px; max-width: 60ch; }
-  .links { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; }
-  main { max-width: 920px; margin: 0 auto; padding: 12px 20px 60px; }
-  .panel {
-    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-    padding: 18px; margin: 16px 0;
-  }
-  .panel h2 { margin: 0 0 4px; font-size: 16px; }
-  .panel .hint { color: var(--dim); font-size: 13px; margin: 0 0 14px; }
+
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--sw-bg); color:var(--sw-text);
+         font:14.5px/1.55 var(--sw-sans); }
+  a { color:var(--sw-teal); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  code { font:0.85em var(--sw-mono); color:var(--sw-text-mid); }
+
+  /* mono/sans doctrine: mono = data/labels/values, sans = prose */
+  .mono { font-family:var(--sw-mono); }
+  .label { font:0.7rem var(--sw-mono); letter-spacing:0.12em; text-transform:uppercase;
+           color:var(--sw-text-soft); }
+
+  header { max-width:880px; margin:0 auto; padding:30px 20px 6px; }
+  .toprow { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+  h1 { margin:0; font:700 1.9rem/1.1 var(--sw-sans); letter-spacing:-0.015em; }
+  h1 .at { color:var(--sw-text-soft); font-weight:400; }
+  .tagline { color:var(--sw-text-mid); margin:6px 0 14px; max-width:62ch; }
+  .links { display:flex; flex-wrap:wrap; gap:14px; align-items:center;
+           font:0.72rem var(--sw-mono); letter-spacing:0.06em; }
+  .toggle { background:transparent; border:1px solid var(--sw-border); color:var(--sw-teal);
+            font:700 0.7rem var(--sw-mono); letter-spacing:0.1em; text-transform:uppercase;
+            border-radius:var(--sw-radius); padding:4px 10px; cursor:pointer; }
+  .toggle:hover { filter:brightness(1.1); }
+
+  main { max-width:880px; margin:0 auto; padding:12px 20px 60px; }
+  .panel { background:var(--sw-bg-raised); border:1px solid var(--sw-border);
+           border-radius:var(--sw-radius-lg); margin:16px 0; overflow:hidden; }
+  .panel-header { background:var(--sw-bg-bright); border-bottom:1px solid var(--sw-border);
+                  padding:8px 16px; display:flex; align-items:center; gap:8px;
+                  font:0.72rem var(--sw-mono); letter-spacing:0.14em; text-transform:uppercase;
+                  color:var(--sw-text-mid); }
+  .dot { width:7px; height:7px; border-radius:50%; background:var(--sw-green);
+         box-shadow:0 0 0 2px var(--sw-green-soft); }
+  .panel-body { padding:16px; }
+  .hint { color:var(--sw-text-mid); font-size:0.9rem; margin:0 0 12px; }
+
   textarea, input[type=text] {
-    width: 100%; background: var(--panel2); color: var(--ink); border: 1px solid var(--line);
-    border-radius: 8px; padding: 10px 12px; font: 13px/1.5 var(--mono); resize: vertical;
-  }
-  textarea:focus, input:focus { outline: none; border-color: var(--accent); }
-  label.row { display: block; font-size: 13px; color: var(--dim); margin: 12px 0 4px; }
-  .forms { display: grid; gap: 8px; margin-top: 14px; }
-  .form-line {
-    display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 10px;
-    background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
-  }
-  .form-line .scheme { font: 12px var(--mono); color: var(--accent); }
-  .form-line .val {
-    font: 12px var(--mono); color: var(--ink); overflow: hidden; text-overflow: ellipsis;
-    white-space: nowrap; direction: rtl; text-align: left;
-  }
-  .form-line .size { font: 12px var(--mono); color: var(--dim); white-space: nowrap; }
-  .form-line button {
-    background: transparent; border: 1px solid var(--line); color: var(--dim);
-    border-radius: 6px; padding: 3px 8px; font-size: 12px; cursor: pointer;
-  }
-  .form-line button:hover { color: var(--ink); border-color: var(--accent); }
-  .fits { display: grid; gap: 3px; margin-top: 14px; }
-  .fit { display: grid; grid-template-columns: 20px 1fr auto auto; gap: 10px; align-items: center;
-         font-size: 13px; padding: 3px 6px; border-radius: 6px; }
-  .fit .mark { font: 13px var(--mono); }
-  .fit.ok .mark { color: var(--ok); } .fit.no .mark { color: var(--bad); }
-  .fit.no { color: var(--dim); }
-  .fit .lim, .fit .note { font: 12px var(--mono); color: var(--dim); }
-  .out { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px;
-         padding: 10px 12px; font: 13px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word;
-         min-height: 1.5em; margin-top: 8px; }
-  .out.err { color: var(--bad); }
-  .frag { display: grid; gap: 8px; margin-top: 12px; font: 12px/1.5 var(--mono); }
-  .frag .k { color: var(--dim); }
-  .frag .esc-hi { color: var(--accent); }
-  .badge { font: 11px var(--mono); padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line); color: var(--dim); }
-  .badge.ok { color: var(--ok); border-color: var(--ok); }
-  footer { max-width: 920px; margin: 0 auto; padding: 0 20px 50px; color: var(--dim); font-size: 13px; }
-  .pill { display:inline-block; font:11px var(--mono); color:var(--ok); border:1px solid var(--ok);
-          border-radius:5px; padding:1px 7px; }
+    width:100%; background:var(--sw-bg); color:var(--sw-text); border:1px solid var(--sw-border);
+    border-radius:var(--sw-radius); padding:9px 11px; font:0.82rem/1.5 var(--sw-mono); resize:vertical; }
+  textarea:focus, input:focus { outline:none; border-color:var(--sw-orange);
+    box-shadow:0 0 0 3px var(--sw-orange-soft); }
+  .field-label { display:block; margin:14px 0 5px; }
+
+  .forms { display:grid; gap:7px; margin-top:14px; }
+  .form-line { display:grid; grid-template-columns:62px 1fr auto; align-items:center; gap:10px;
+    background:var(--sw-bg); border:1px solid var(--sw-border-soft); border-radius:var(--sw-radius);
+    padding:7px 10px; }
+  .form-line .scheme { font:0.72rem var(--sw-mono); color:var(--sw-teal); }
+  .form-line .val { font:0.72rem var(--sw-mono); overflow:hidden; text-overflow:ellipsis;
+    white-space:nowrap; direction:rtl; text-align:left; }
+  .form-line .size { display:flex; gap:8px; align-items:center;
+    font:0.72rem var(--sw-mono); color:var(--sw-text-soft); white-space:nowrap; }
+  .btn-ghost { background:transparent; border:1px solid var(--sw-border); color:var(--sw-text-soft);
+    border-radius:var(--sw-radius); padding:3px 9px; font:700 0.66rem var(--sw-mono);
+    letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; }
+  .btn-ghost:hover { color:var(--sw-orange); border-color:var(--sw-orange); }
+
+  .share-row { display:grid; grid-template-columns:1fr auto; gap:16px; margin-top:8px; align-items:start; }
+  .out { background:var(--sw-bg); border:1px solid var(--sw-border-soft); border-radius:var(--sw-radius);
+    padding:9px 11px; font:0.8rem/1.5 var(--sw-mono); white-space:pre-wrap; word-break:break-word;
+    min-height:1.5em; margin-top:6px; color:var(--sw-text); }
+  .out.err { color:var(--sw-red); }
+
+  .qr-box { text-align:center; }
+  .qr-box canvas { image-rendering:pixelated; border:6px solid #f4f3f1; background:#f4f3f1;
+    border-radius:var(--sw-radius); max-width:230px; height:auto; }
+  .qr-cap { margin-top:6px; font:0.66rem var(--sw-mono); letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--sw-text-soft); }
+  .qr-cap.bad { color:var(--sw-red); }
+
+  .fits { display:grid; gap:2px; margin-top:16px; }
+  .fit { display:grid; grid-template-columns:18px 1fr auto auto; gap:10px; align-items:center;
+    font:0.78rem var(--sw-mono); padding:3px 6px; border-radius:var(--sw-radius); }
+  .fit .mark { font-weight:700; }
+  .fit.ok .mark { color:var(--sw-green); }
+  .fit.no { color:var(--sw-text-soft); } .fit.no .mark { color:var(--sw-red); }
+  .fit .lim, .fit .note { font-size:0.72rem; color:var(--sw-text-soft); }
+  .readout { margin-top:12px; font:0.74rem var(--sw-mono); color:var(--sw-text-mid); }
+
+  .frag { display:grid; gap:8px; font:0.78rem/1.5 var(--sw-mono); }
+  .frag .k { color:var(--sw-text-soft); letter-spacing:0.06em; text-transform:uppercase;
+    font-size:0.66rem; display:inline-block; min-width:9.5em; }
+  .frag .esc-hi { color:var(--sw-amber); background:var(--sw-amber-soft); border-radius:2px; padding:0 2px; }
+  .badge { display:inline-flex; align-items:center; gap:5px; font:700 0.66rem var(--sw-mono);
+    letter-spacing:0.08em; text-transform:uppercase; padding:2px 8px; border-radius:var(--sw-radius);
+    background:var(--sw-teal-soft); color:var(--sw-teal); }
+  .badge.go { background:var(--sw-green-soft); color:var(--sw-green); }
+  .badge.fault { background:var(--sw-red-soft); color:var(--sw-red); }
+  .badge::before { content:""; width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+  footer { max-width:880px; margin:0 auto; padding:0 20px 50px; color:var(--sw-text-soft);
+    font-size:0.78rem; line-height:1.7; }
+  @media (max-width:620px){ .share-row{grid-template-columns:1fr} .qr-box{justify-self:start} }
 </style>
 </head>
 <body>
 <header>
-  <h1><span class="at">@gcu/</span>capsule</h1>
+  <div class="toprow">
+    <h1><span class="at">@gcu/</span>capsule</h1>
+    <button class="toggle" id="theme">Light</button>
+  </div>
   <p class="tagline">A compact string that resolves to bytes — carried inline (URL
   fragment / QR) or referenced. This page runs the <strong>real package</strong>
   (<code>src/index.js</code>) entirely in your browser; nothing is sent anywhere.</p>
@@ -83,56 +143,73 @@
     <a href="https://github.com/gentropic/capsule/blob/main/SPEC-capsule.md">Spec</a>
     <a href="https://github.com/gentropic/capsule/blob/main/CAPSULES.md">Guide</a>
     <a href="https://github.com/gentropic/capsule/blob/main/ROADMAP.md">Roadmap</a>
-    <span class="pill">offline · zero-dep</span>
+    <span class="badge go">offline · zero-dep</span>
   </nav>
 </header>
 
 <main>
   <!-- ENCODE -->
   <section class="panel">
-    <h2>Encode</h2>
-    <p class="hint">Type anything. It's UTF-8 → deflate-raw → the three equivalent
-      inline forms. They all decode to the same bytes (§17).</p>
-    <textarea id="enc-in" rows="5" spellcheck="false">!menu1+pt-BR
+    <div class="panel-header"><span class="dot"></span>Encode</div>
+    <div class="panel-body">
+      <p class="hint">Type anything. It's UTF-8 → deflate-raw → the three equivalent
+        inline forms — all decode to the same bytes (§17).</p>
+      <textarea id="enc-in" rows="5" spellcheck="false">!menu1+pt-BR
 # Café Gentropia
 ## Cafés
 Expresso | 6
 Pingado | 7
 </textarea>
-    <div class="forms" id="forms"></div>
+      <div class="forms" id="forms"></div>
 
-    <label class="row" for="base">Share URL base (the consumer the capsule opens in)</label>
-    <input type="text" id="base" value="https://gentropic.org/cradle" spellcheck="false">
-    <label class="row">QR-form share URL (<code>q:</code>, fragment-escaped)</label>
-    <div class="out" id="share-url"></div>
+      <label class="field-label label" for="base">Share-URL base (the consumer the capsule opens in)</label>
+      <input type="text" id="base" value="https://gentropic.org/cradle" spellcheck="false">
 
-    <div class="fits" id="fits"></div>
-    <div id="suggestion" style="margin-top:10px;color:var(--dim);font-size:13px"></div>
+      <div class="share-row">
+        <div>
+          <label class="field-label label">QR-form share URL (q:, fragment-escaped)</label>
+          <div class="out" id="share-url"></div>
+          <div class="fits" id="fits"></div>
+          <div class="readout" id="readout"></div>
+        </div>
+        <div class="qr-box">
+          <canvas id="qr" width="160" height="160"></canvas>
+          <div class="qr-cap" id="qr-cap"></div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- DECODE -->
   <section class="panel">
-    <h2>Decode</h2>
-    <p class="hint">Paste a capsule (<code>inline:</code> / <code>i:</code> /
-      <code>q:</code>), a full share URL, or just a <code>#fragment</code>. Reference
-      schemes (<code>gh:</code>, <code>gist:</code>, …) resolve over the network.</p>
-    <textarea id="dec-in" rows="2" spellcheck="false"></textarea>
-    <div class="out" id="dec-out"></div>
+    <div class="panel-header"><span class="dot"></span>Decode</div>
+    <div class="panel-body">
+      <p class="hint">Paste a capsule (<code>inline:</code> / <code>i:</code> /
+        <code>q:</code>), a full share URL, or a <code>#fragment</code>. Reference
+        schemes (<code>gh:</code>, <code>gist:</code>, …) resolve over the network.</p>
+      <textarea id="dec-in" rows="2" spellcheck="false" placeholder="q:d…  /  https://…/#…"></textarea>
+      <div class="out" id="dec-out"></div>
+    </div>
   </section>
 
   <!-- FRAGMENT -->
   <section class="panel">
-    <h2>The <code>q:</code> fragment gotcha (§6.4.1)</h2>
-    <p class="hint">base45 contains two characters a URL fragment can't carry —
-      <code>space</code> and <code>%</code>. Watch them get escaped, and round-trip back.</p>
-    <div class="frag" id="frag"></div>
+    <div class="panel-header"><span class="dot"></span>The q: fragment gotcha · §6.4.1</div>
+    <div class="panel-body">
+      <p class="hint">base45 contains two characters a URL fragment can't carry —
+        <code>space</code> and <code>%</code>. Watch them escape, and round-trip back.</p>
+      <div class="frag" id="frag"></div>
+    </div>
   </section>
 </main>
 
 <footer>
-  Rendered QR is coming (it needs a vendored encoder to stay offline) — for now the
-  fit table shows which QR version / channel the <code>q:</code> URL lands in.
-  &nbsp;·&nbsp; MIT © Geoscientific Chaos Union · spec is CC0.
+  Fonts: <strong>Barlow</strong> + <strong>Space Mono</strong> (SIL OFL, see
+  <a href="fonts/OFL.txt">fonts/OFL.txt</a>) · QR via the
+  <a href="https://www.nayuki.io/page/qr-code-generator-library">QR Code generator library</a>
+  © Project Nayuki (MIT, vendored in <code>vendor/qrcodegen.js</code>) · theme:
+  <a href="https://github.com/gentropic/switchboard">GCU Switchboard</a>.<br>
+  @gcu/capsule is MIT © Geoscientific Chaos Union; the spec is CC0.
 </footer>
 
 <script type="module">
@@ -144,30 +221,26 @@ import {
 
 const $ = id => document.getElementById(id);
 const enc = new TextEncoder();
-const bytes = s => enc.encode(s).length;
+const blen = s => enc.encode(s).length;
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
 const SCHEMES = [['inline','inline:'], ['i','i:'], ['q','q:']];
 
 async function renderEncode() {
   const text = $('enc-in').value;
   const base = $('base').value.trim();
 
-  // three forms
   const out = [];
   for (const [form, label] of SCHEMES) {
-    let cap;
-    try { cap = await encodeInline(text, { form }); } catch (e) { cap = 'error: ' + e.message; }
+    let cap; try { cap = await encodeInline(text, { form }); } catch (e) { cap = 'error: ' + e.message; }
     out.push({ label, cap });
   }
   $('forms').innerHTML = out.map(({label, cap}) => `
     <div class="form-line">
       <span class="scheme">${esc(label)}</span>
       <span class="val" title="${esc(cap)}">${esc(cap)}</span>
-      <span class="size">${bytes(cap)} B <button data-cap="${esc(cap)}">copy</button></span>
+      <span class="size">${blen(cap)} B <button class="btn-ghost" data-cap="${esc(cap)}">copy</button></span>
     </div>`).join('');
 
-  // share URL + channel fit (from the q: form)
   const q = out[2].cap;
   const m = measureCapsule(q, { baseUrl: base });
   const url = base + '#' + m.fragment;
@@ -180,13 +253,33 @@ async function renderEncode() {
       <span class="lim">≤ ${f.urlBytes}</span>
       <span class="note">${esc(f.note)}</span>
     </div>`).join('');
+  $('readout').textContent = `URL ${m.urlBytes} B · tightest fit: ${m.tightestFit ?? 'none — publish & reference'}`;
 
-  const fit = m.tightestFit;
-  $('suggestion').textContent = `URL is ${m.urlBytes} B — ` + (fit
-    ? `tightest channel it fits: ${fit}.`
-    : `fits no listed channel; publish to a host and share a reference capsule.`);
-
+  renderQR(url);
   renderFragment(q);
+}
+
+function renderQR(text) {
+  const cap = $('qr-cap'), canvas = $('qr');
+  try {
+    const ecc = qrcodegen.QrCode.Ecc.MEDIUM;            // matches the "M ECC" fit table
+    const qr = qrcodegen.QrCode.encodeText(text, ecc);
+    const border = 4, scale = 4, dim = (qr.size + border * 2) * scale;
+    canvas.width = canvas.height = dim;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#f4f3f1'; ctx.fillRect(0, 0, dim, dim);
+    ctx.fillStyle = '#16191c';
+    for (let y = 0; y < qr.size; y++)
+      for (let x = 0; x < qr.size; x++)
+        if (qr.getModule(x, y))
+          ctx.fillRect((x + border) * scale, (y + border) * scale, scale, scale);
+    cap.className = 'qr-cap';
+    cap.textContent = `QR v${qr.version} · ${qr.size}×${qr.size} · M ECC`;
+  } catch (e) {
+    const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height);
+    cap.className = 'qr-cap bad';
+    cap.textContent = 'too large for a QR — publish & reference';
+  }
 }
 
 function renderFragment(q) {
@@ -196,25 +289,23 @@ function renderFragment(q) {
   const hi = esc(escd).replace(/%25/g, '<span class="esc-hi">%25</span>')
                       .replace(/%20/g, '<span class="esc-hi">%20</span>');
   $('frag').innerHTML = `
-    <div><span class="k">raw capsule&nbsp;&nbsp;</span>${esc(q)}</div>
+    <div><span class="k">raw capsule</span>${esc(q)}</div>
     <div><span class="k">in fragment</span>${hi}
-      ${changed ? '' : '<span class="badge">no change — base64url has neither char</span>'}</div>
-    <div><span class="k">round-trips&nbsp;</span>
-      <span class="badge ${round === q ? 'ok' : ''}">${round === q ? '✓ fragmentDecode → identical' : '✗ MISMATCH'}</span></div>`;
+      ${changed ? '' : '<span class="badge">no change · base64url has neither char</span>'}</div>
+    <div><span class="k">round-trips</span>
+      <span class="badge ${round === q ? 'go' : 'fault'}">${round === q ? '✓ fragmentDecode → identical' : '✗ mismatch'}</span></div>`;
 }
 
 async function renderDecode() {
   const raw = $('dec-in').value.trim();
   const elt = $('dec-out');
   if (!raw) { elt.textContent = ''; elt.classList.remove('err'); return; }
-  // accept a full URL / fragment / bare capsule
   let cap = raw;
   const hash = raw.lastIndexOf('#');
   if (hash >= 0) cap = raw.slice(hash + 1);
   cap = fragmentDecode(cap);
   try {
-    const text = await decodeInlineText(cap);
-    elt.textContent = text;
+    elt.textContent = await decodeInlineText(cap);
     elt.classList.remove('err');
   } catch (e) {
     elt.textContent = e.message + (e.message === 'EUNKNOWN'
@@ -226,6 +317,11 @@ async function renderDecode() {
 document.addEventListener('click', e => {
   const b = e.target.closest('button[data-cap]');
   if (b) { navigator.clipboard?.writeText(b.dataset.cap); b.textContent = '✓'; setTimeout(() => b.textContent = 'copy', 900); }
+});
+$('theme').addEventListener('click', () => {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  $('theme').textContent = dark ? 'Dark' : 'Light';
 });
 $('enc-in').addEventListener('input', renderEncode);
 $('base').addEventListener('input', renderEncode);

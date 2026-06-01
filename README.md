@@ -195,6 +195,17 @@ escaping (incl. the adversarial `%20` case), the dictionary path end-to-end
 (via a `node:zlib` stand-in for pako), the full dispatcher contract, and every
 reference loader against a stubbed `fetch`.
 
+## Credits
+
+The **package** has zero runtime dependencies. The **playground** (`index.html`,
+not part of the npm package) vendors three third-party works, each with its
+license preserved in-tree:
+
+- **QR Code generator library** © [Project Nayuki](https://www.nayuki.io/page/qr-code-generator-library)
+  — MIT, vendored verbatim in `vendor/qrcodegen.js` (full header intact).
+- **Barlow** & **Space Mono** typefaces — SIL Open Font License, see `fonts/OFL.txt`.
+- **GCU Switchboard** design tokens — MIT (the GCU canonical design system).
+
 ## License
 
 MIT © Geoscientific Chaos Union. The spec (`SPEC-capsule.md`) is CC0.
