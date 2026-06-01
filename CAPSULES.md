@@ -345,6 +345,37 @@ scheme + URL overhead. A live size readout next to the share button ("~2.4 KB �
 ✓ QR v20 ✗ QR v15") makes the tradeoff legible; when content outgrows the inline tier,
 offer the next tier rather than emitting a link that breaks somewhere.
 
+### Printing the QR (thermal printers, stickers, gacha capsules)
+
+If the QR's destiny is *paper* — a sticker, a gacha capsule, a receipt-printer
+hand-out — the binding constraint is the printer's dot pitch, and the rule is the
+same one that's good for QR everywhere: **keep the payload small so the version
+stays low so the modules stay big.**
+
+A pocket thermal printer (Paperang-class) is **203 DPI = 8 dots/mm**, with a
+**48 mm (384-dot)** printable width. Each QR module must be a whole number of
+printer dots, and to scan reliably *off thermal paper* — where dot bleed and fade
+both eat your margin — you want each module about **0.4–0.5 mm, i.e. 3–4 printer
+dots**. At 4 dots/module that caps you around **QR v15** on a 48 mm head (a ~42 mm
+code); a small capsule (a 130-byte URL ≈ v8) prints at ~28 mm with room to spare.
+
+So, for print:
+
+- **Stay at ~v15 or below** — i.e. keep the *share URL* under ~500 bytes (the
+  "QR v15" row above). The playground shows the live version; dial content until it
+  reads v15 or lower before you print.
+- **Render at integer dots/module and print 1:1.** Draw each module as exactly
+  3–4 pixels at the printer's DPI; don't let a driver resample, which blurs module
+  edges and kills scans.
+- **Keep the 4-module quiet zone** — that white border is load-bearing; don't crop.
+- **Bump ECC to Q (~25%)** for anything that'll be handled or smudged; M (~15%) is
+  fine for clean indoor stickers. Higher ECC grows the version, so it nudges you to
+  trim the payload — which is the right instinct anyway.
+
+This is exactly why the dictionary codecs (§4, `q:d.<dict>_`) earn their keep:
+every byte shaved keeps the version down, the modules large, and the thing
+scannable from a 1-inch gacha sticker.
+
 ---
 
 ## 7. Graceful degradation — accept everything, fail loud

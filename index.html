@@ -103,6 +103,9 @@
   .qr-cap { margin-top:6px; font:0.66rem var(--sw-mono); letter-spacing:0.06em;
     text-transform:uppercase; color:var(--sw-text-soft); }
   .qr-cap.bad { color:var(--sw-red); }
+  .qr-print { margin-top:3px; font:0.62rem var(--sw-mono); letter-spacing:0.03em;
+    color:var(--sw-text-soft); }
+  .qr-print.tight { color:var(--sw-amber); }
 
   .fits { display:grid; gap:2px; margin-top:16px; }
   .fit { display:grid; grid-template-columns:18px 1fr auto auto; gap:10px; align-items:center;
@@ -175,6 +178,7 @@ Pingado | 7
         <div class="qr-box">
           <canvas id="qr" width="160" height="160"></canvas>
           <div class="qr-cap" id="qr-cap"></div>
+          <div class="qr-print" id="qr-print" title="Pocket thermal printer: 203 DPI, 48 mm printable width"></div>
         </div>
       </div>
     </div>
@@ -275,11 +279,31 @@ function renderQR(text) {
           ctx.fillRect((x + border) * scale, (y + border) * scale, scale, scale);
     cap.className = 'qr-cap';
     cap.textContent = `QR v${qr.version} · ${qr.size}×${qr.size} · M ECC`;
+    printReadout(qr.size);
   } catch (e) {
     const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height);
     cap.className = 'qr-cap bad';
     cap.textContent = 'too large for a QR — publish & reference';
+    $('qr-print').textContent = '';
   }
+}
+
+// Printed size on a pocket thermal printer (Paperang-class): 203 DPI, 48 mm
+// (384-dot) head. Pick the largest dots/module (4→3→2) that still fits the
+// width; modules want to stay ≥ ~0.4 mm to scan off thermal paper.
+function printReadout(size) {
+  const el = $('qr-print'), total = size + 8;       // +8 = 4-module quiet zone
+  const DPI = 203, HEAD = 384;
+  for (const dpm of [4, 3, 2]) {
+    if (total * dpm <= HEAD) {
+      const mm = Math.round(total * dpm / DPI * 25.4);
+      el.className = dpm < 3 ? 'qr-print tight' : 'qr-print';
+      el.textContent = `≈ ${mm} mm @203 DPI · ${dpm} dots/module · 48 mm thermal ✓`;
+      return;
+    }
+  }
+  el.className = 'qr-print tight';
+  el.textContent = 'too wide for a 48 mm thermal head — trim the payload';
 }
 
 function renderFragment(q) {
