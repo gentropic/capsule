@@ -23,6 +23,7 @@
   ],
   "files": [
     "src",
+    "dist",
     "index.d.ts",
     "vectors.json",
     "SPEC-capsule.md",
@@ -39,6 +40,10 @@
       "types": "./index.d.ts",
       "default": "./src/index.js"
     },
+    "./bundled": {
+      "types": "./index.d.ts",
+      "default": "./dist/capsule.js"
+    },
     "./codecs": "./src/codecs.js",
     "./share": "./src/share.js",
     "./dispatcher": "./src/dispatcher.js",
@@ -53,6 +58,8 @@
   "sideEffects": false,
   "scripts": {
     "test": "node --test",
+    "build": "node build/bundle.js",
+    "build:check": "node build/bundle.js --check",
     "vectors": "node scripts/gen-vectors.js"
   },
   "engines": {

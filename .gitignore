@@ -9,9 +9,8 @@ npm-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# Build output (the bundled single-file ESM, when the build lands)
-dist/
-build/out/
+# Note: dist/ is COMMITTED — the bundled single-file build is a vendorable
+# artifact (build/bundle.js generates it; CI `build:check` guards drift).
 
 # Editor / OS cruft
 .DS_Store

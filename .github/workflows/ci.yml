@@ -18,3 +18,4 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - run: node --test
+      - run: node build/bundle.js --check   # committed dist/ must match src/

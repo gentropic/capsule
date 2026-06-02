@@ -18,6 +18,11 @@ roadmap items extend the package and the consumer story, not the bytes.
 - Size literacy: `makeShare`/`measureCapsule`/`channelFit`/`CHANNELS` — advisory,
   never gating (§14).
 - TypeScript types (`index.d.ts`).
+- **Bundled single-file build** (§13) — `build/bundle.js` (zero-dep) concatenates
+  `src/` into `dist/capsule.js` (ESM, = `@gcu/capsule/bundled`) + `dist/capsule.global.js`
+  (IIFE → `globalThis.gcuCapsule`). Committed + vendorable; `build:check` guards drift
+  in CI; `test/bundle.test.js` round-trips it. This is what ep/cradle vendor instead of
+  re-inlining a subset.
 - **Playground** (`index.html`) — a single offline page that imports the real
   `src/index.js` and does live encode (three forms + sizes) / decode / channel-fit
   / the §6.4.1 fragment-escape visualizer / **rendered QR** (vendored Nayuki, MIT).
@@ -26,12 +31,8 @@ roadmap items extend the package and the consumer story, not the bytes.
 
 ## Near-term (speced or obvious)
 
-- **`@gcu/capsule/bundled`** — single-file ESM build (§13), for single-file-ethos
-  consumers (cradle) to inline a canonical bundle instead of a hand-maintained
-  subset. `dist/` is already gitignored for it.
-- **GitHub Pages** at `gentropic.org/capsule` — the playground (`index.html`) is
-  built (Switchboard-themed, rendered QR, light/dark) and `.nojekyll` is in place;
-  remaining: flip on Pages (Settings → Pages → deploy from `main`, root).
+- **GitHub Pages** at `gentropic.org/capsule` — **shipped/live**; the playground
+  (`index.html`, Switchboard-themed, rendered QR, light/dark) serves at the path.
   Optional later: **live reference-scheme resolution** in the decode box
   (`gh:`/`gist:` over the network). Canonical docs stay as the repo markdown,
   linked from the page.
