@@ -114,15 +114,16 @@ with its multi-strip cards — **not** to fake it with a content-specific dictio
 (see `experiments/chip8-dict.md` for why library-as-dictionary is a reference in
 disguise, out of capsule's spirit).
 
-**Sketch.** A thin transport framing the spec would define: split the (compressed)
-payload into N chunks, each carried in its own capsule with a header like
-`<set-id>/<index>/<total>`; a consumer scans all N in any order, reassembles, then
-decodes once. Open design questions: scheme vs. versioned prefix (`v1:part:…`) vs.
-consumer convention; an integrity tag over the whole so reassembly is verified
-(ties to the deferred integrity/`enc:` thread, §21); missing-part UX ("scan part
-3 of 4"). Transport defines the framing; the scan-and-collect UI is a consumer
-(cradle) concern. Lower urgency until a consumer actually needs >1-QR payloads —
-its first real motivating case is the CHIP-8 arcade below.
+**Doodled in `SPEC-multipart.md`** (draft, 2026-06-02): wire form
+`mp:<setid>:<i>/<n>:<chunk>` (setid = content-hash prefix → self-verifying), slice
+the *finished capsule string* (codec-agnostic), reassemble → resolve normally.
+The crux it makes explicit: a multi-part set **loses the OS-camera scan-and-go
+magic** — it needs a stateful **collector** (a continuous in-app camera scanner, or
+navigate-per-scan + origin storage), which single capsules never required. So it's
+an opt-in *companion* layer above the resolver (like the badge protocol §15), not
+core. Includes the **mad version** — fountain/erasure codes (LT/Raptor/RaptorQ) so
+*any* ~N of a printed pile reconstruct, loss-tolerant gacha — as a "someday." Still
+build-when-pulled (first motivating case: the CHIP-8 arcade below).
 
 ## Exploratory — CHIP-8 micro-emulator (a cradle/arcr sibling)
 

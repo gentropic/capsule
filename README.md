@@ -214,6 +214,9 @@ hand-edited** — `npm run build:check` (run in CI) fails if `dist/` drifts from
   producer/consumer code, the `q:` escaping gotcha, size budgeting, anti-patterns.
 - **[`ROADMAP.md`](./ROADMAP.md)** — where this is headed (and the deliberately
   deferred ideas, like capsule-as-config-delivery).
+- **[`SPEC-multipart.md`](./SPEC-multipart.md)** — *draft / exploratory*: carrying
+  one payload across several QR codes (the e-Reader multi-strip idea), incl. the
+  fountain-code variant. Not implemented; design on record.
 
 ## Develop
 
