@@ -376,6 +376,25 @@ This is exactly why the dictionary codecs (§4, `q:d.<dict>_`) earn their keep:
 every byte shaved keeps the version down, the modules large, and the thing
 scannable from a 1-inch gacha sticker.
 
+### Other carriers — NFC, and the medium-agnostic point
+
+A capsule is just bytes; a QR is *a* carrier, not *the* carrier. The same
+`<shell-url>#<capsule>` rides an **NFC tag** as an NDEF **URI record** — tap
+instead of scan, and the OS opens the URL exactly as a scanned QR would (the
+single-capsule scan-and-go property holds). Writing one is trivial (any NFC-writer
+app, or Web NFC's `NDEFWriter`); no new format. NFC is just another *channel* with
+its own capacity, so the same size budgeting (§6) applies:
+
+| tag | usable bytes | ≈ |
+|---|---:|---|
+| NTAG213 | ~144 | tight — small `q:`/`i:` only |
+| NTAG215 | ~504 | ≈ QR v15 |
+| NTAG216 | ~888 | ≈ QR v20 |
+
+The `q:` fragment-escaping (§4) still applies — it's the same URL text. Beyond
+NFC, the bytes are equally happy over Bluetooth, audible sound (a `ggwave`-style
+chirp), or anything else; the transport is deliberately medium-agnostic.
+
 ---
 
 ## 7. Graceful degradation — accept everything, fail loud

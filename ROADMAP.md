@@ -133,6 +133,43 @@ schema-relative positional record codec. The real task is **alignment** so the t
 don't drift into incompatible framings (the reason capsule was extracted). CHIP-8
 is a secondary, unbuilt case. Still build-when-pulled — but Hopper is a real pull.
 
+## Exploratory — Shamir shares (threshold secret-splitting across QRs)
+
+**The idea (2026-06-02).** Split a secret — a wallet seed phrase, an age/SSH/PGP
+key, a recovery passphrase — into **N capsule QRs** via Shamir's Secret Sharing,
+**any K** of which reconstruct it in cradle, fully offline. Print the shares on
+paper (or engrave on metal), scatter them (home / family / safe-deposit), and a
+phone with cradle is the only "device" needed to recover. Serverless paper/metal
+cold storage with a real availability-vs-secrecy threshold.
+
+**Sibling of multipart, but a different animal.** It reuses multipart's
+**collector** (SPEC-multipart §4: scan N codes → reconstruct) — they could share a
+single "threshold reconstruction" surface. But the security model is the opposite:
+a multipart part *leaks its plaintext chunk*; a Shamir share below threshold leaks
+**nothing** (information-theoretic). So multipart is for **size/robustness**, Shamir
+for **secrecy**. The scheme/framing belongs capsule-side (companion to multipart);
+the *reference renderer* — "scan K shares → reconstruct → reveal, consent-gated" —
+lives in **cradle**.
+
+**This is the one to be very careful with.** Crypto, on paper, for irreplaceable
+secrets — the failure modes are silent and permanent. Non-negotiables for any
+implementation:
+- Use a **vetted** SSS implementation (GF(256), well-reviewed) — never hand-rolled;
+  seed coefficients from `crypto.getRandomValues`, all generation/reconstruction
+  **client-side**, the secret never transmitted.
+- **Authenticate the reconstruction.** Plain Shamir doesn't detect a corrupted or
+  forged share — wrong shares silently yield a *wrong secret*. Carry a commitment
+  (hash of the secret) and ideally per-share integrity, so recovery is *verified*
+  and a bad share is identified. Consider verifiable/robust SSS.
+- **A single share is not a capsule-you-can-be-careless-with.** Below threshold it's
+  safe, but the §22 "fragments are public-adjacent" rule still means: never put the
+  *whole* secret in one capsule, and treat the threshold as the secret's real
+  security boundary.
+- Document the **threat model**: physical-security-dependent (paper shares), the
+  K-of-N trade (lose-N−K and still recover vs. any-K colluding reconstruct), and
+  optionally an encryption layer (passphrase-encrypt, then split) for defense in
+  depth. Build only with a careful crypto review; reference impl in cradle.
+
 ## Exploratory — CHIP-8 micro-emulator (a cradle/arcr sibling)
 
 **The idea (a sidequest, for fun).** A `!chip81+` renderer (or `!arcr1+engine=chip8`
