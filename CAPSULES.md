@@ -417,6 +417,17 @@ Things that look fine and bite later:
   is for (the doorbell format encrypts at the renderer level, not the transport level).
 - **Reinventing compression.** Use `CompressionStream('deflate-raw')`. Not `deflate`
   (zlib wrapper), not `gzip` — those add header bytes and won't interop.
+- **Content-as-dictionary.** A dictionary should capture a domain's *shared
+  vocabulary* (common menu words, opcode patterns) — something that helps *any*
+  payload in the domain. A dictionary built from the *specific content corpus* you
+  serve is a trap: the capsule then carries almost no information, the content lives
+  in the consumer's baked dictionary, and the capsule is just an *index into it* —
+  a reference (`gh:`-style "the content is over there") wearing an `inline:` costume.
+  It looks like a huge compression win but breaks **portability**: the capsule only
+  decodes against the one deployment shipping that exact dictionary; another
+  consumer (or the resolver itself) can't read it. If the content already lives in
+  the consumer, be honest and use a reference/index. For genuinely large payloads,
+  reach for multi-part (more QRs), not a fatter content-specific dictionary.
 - **Silent size caps.** If you truncate or refuse oversized content, say so; don't emit
   a link that works in your testing channel and fails in the user's.
 

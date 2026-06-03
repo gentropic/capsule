@@ -104,3 +104,49 @@ a consumer (likely webmcp) has a concrete pull for it — build the renderer bec
 something needs it, not for a hypothetical. When that happens, `!cast1+` is the
 first thing to spec (cradle-side), with webmcp `{port,token}` delivery as the
 worked example.
+
+## Exploratory — multi-part capsules
+
+**The idea.** Some payloads are bigger than one QR can carry (a 3.5 KB CHIP-8
+ROM, an XO-CHIP game, a fat arcr). The *honest* answer is to spread the bytes
+across several capsules/QRs and reassemble — exactly what the GBA e-Reader did
+with its multi-strip cards — **not** to fake it with a content-specific dictionary
+(see `experiments/chip8-dict.md` for why library-as-dictionary is a reference in
+disguise, out of capsule's spirit).
+
+**Sketch.** A thin transport framing the spec would define: split the (compressed)
+payload into N chunks, each carried in its own capsule with a header like
+`<set-id>/<index>/<total>`; a consumer scans all N in any order, reassembles, then
+decodes once. Open design questions: scheme vs. versioned prefix (`v1:part:…`) vs.
+consumer convention; an integrity tag over the whole so reassembly is verified
+(ties to the deferred integrity/`enc:` thread, §21); missing-part UX ("scan part
+3 of 4"). Transport defines the framing; the scan-and-collect UI is a consumer
+(cradle) concern. Lower urgency until a consumer actually needs >1-QR payloads —
+its first real motivating case is the CHIP-8 arcade below.
+
+## Exploratory — CHIP-8 micro-emulator (a cradle/arcr sibling)
+
+**The idea (a sidequest, for fun).** A `!chip81+` renderer (or `!arcr1+engine=chip8`
+under the arcr umbrella that already anticipates "future engines") whose body is a
+CHIP-8 ROM. CHIP-8 is a VM by nature — 4 KB RAM, 64×32 mono, 16 keys, one beep — so
+it *cannot* touch the host: the same untrusted-DATA / engine-is-the-sandbox posture
+as the arcr DSL. A ~300-line interpreter + a canvas mount. It's the modern,
+open, web-native re-creation of the e-Reader's built-in NES emulator, and the
+parallels are uncanny (printed code → curated runtime → tiny games; gacha booster
+packs → arcr stickers).
+
+**Lives in cradle** (it's a renderer), but it's the natural *motivating consumer*
+for two capsule-side items: **multi-part** (big ROMs) and possibly a fair, general
+**CHIP-8 opcode dictionary** (modest ~29% on novel games — see the experiment;
+emphatically *not* a library-as-dictionary).
+
+**What fits today (measured, 2026-06-02).** ~65% of the classic corpus (the ≤512 B
+games) already rides a single casually-scannable, Paperang-printable QR (~v10–22)
+with no dictionary at all. Median game (~185 B) ≈ v12–14, ~40 mm at 4 dots/module.
+Big games (>1 KB) want multi-part; the ~3.5 KB max-size ROMs exceed any single QR.
+
+**Why CHIP-8 and not NES** (raised 2026-06-02): NES ROMs are 24 KB+ — too big for
+inline QR (reference-only), and a JS NES core is heavy. That's **dd's** layer
+(whole-app images), not cradle's (small typed payloads). CHIP-8 is the one
+emulator target that fits the QR-carried-inline sweet spot. WASM-4 carts (≤64 KB,
+sandboxed) are a possible middle rung someday, reference-only.
