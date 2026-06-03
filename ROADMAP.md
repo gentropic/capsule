@@ -136,9 +136,13 @@ parallels are uncanny (printed code → curated runtime → tiny games; gacha bo
 packs → arcr stickers).
 
 **Lives in cradle** (it's a renderer), but it's the natural *motivating consumer*
-for two capsule-side items: **multi-part** (big ROMs) and possibly a fair, general
-**CHIP-8 opcode dictionary** (modest ~29% on novel games — see the experiment;
-emphatically *not* a library-as-dictionary).
+for **multi-part** (big ROMs). On making ROMs smaller, `experiments/chip8-dict.md`
+measured the honest levers: a **range-coder body codec** beats deflate ~10–15% (the
+cleanest win — format-level, capsule stays byte-agnostic), a fair general opcode
+dictionary buys a little more, and a "successor ISA" nets ≈ entropy coding (no free
+lunch; structural re-encoding is unsafe given self-modifying code + computed jumps).
+Emphatically *not* a library-as-dictionary; dramatically denser *new* games are
+arcr's job.
 
 **What fits today (measured, 2026-06-02).** ~65% of the classic corpus (the ≤512 B
 games) already rides a single casually-scannable, Paperang-printable QR (~v10–22)

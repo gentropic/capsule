@@ -80,9 +80,54 @@ multi-strip trick. Roadmapped.
 - zlib's preset-dictionary window caps at 32 KB, below the 42 KB corpus — which is
   why even the curated dict only reaches 67/75, not all.
 
+## Compression ceiling — is a denser representation possible? (2026-06-02 follow-up)
+
+Separate from dictionaries: could a better *codec* (or a transpiled "successor
+ISA") make CHIP-8 smaller while preserving perfect emulation? Measured the entropy
+of a 30-ROM sample (avg 606 B) vs what we ship:
+
+```
+per-ROM rate (bits/byte, lower = smaller)
+  raw (q:r)         8.00
+  deflate (q:d)     6.94   ← shipped now
+  order-0 entropy   5.94   ← realizable (adaptive range coder)
+  order-1 entropy   1.76   ← MIRAGE (in-sample overfit)
+  order-2 entropy   0.43   ← MIRAGE
+```
+
+- **The order-1/2 numbers are not real.** Measured in-sample, a model with enough
+  context "predicts" each byte perfectly only because the model *is* the data —
+  you'd have to transmit it (= the ROM). Conditional entropy on the same sequence
+  always collapses toward zero; ignore it.
+- **order-0 is real and useful:** ~5.94 vs deflate's 6.94 → **a plain arithmetic /
+  range coder beats deflate by ~14%** on small ROMs. deflate's LZ + block framing
+  don't pay off on small high-entropy data (it often stores near-raw); pure
+  entropy-coding the skewed byte distribution wins. An *adaptive* order-0 range
+  coder realizes most of this per-ROM with no shipped model — portable, in-spirit.
+- **Huffman vs arithmetic:** deflate already *is* Huffman+LZ77. Huffman rounds to
+  whole bits/symbol; arithmetic/range coding spends fractional bits, hugging the
+  5.94 floor tighter. So the honest lever is "drop deflate's LZ/block machinery,
+  keep entropy coding, do it with fractional-bit precision."
+- **A "successor ISA" buys ≈ the same.** A frequency-optimal instruction encoding
+  (Huffman opcodes + tight operands — what RISC-V `C` / Thumb / MIPS16 do to real
+  ISAs) is an entropy coder in disguise; it can't beat the program's entropy under
+  the model. And the *aggressive* kind (relocate addresses, fuse super-instructions)
+  is **unsafe for perfect emulation of arbitrary ROMs**: CHIP-8 has self-modifying
+  code (no static code/data split), a computed jump (`Bnnn = NNN+V0`), and
+  observable quirks — so you're confined to lossless stream re-encoding, which is
+  entropy-bounded (~the ~14% above).
+- **The floor:** ~6 bits/byte of genuine info means a 200 B game is ~150 B of real
+  content. You can't losslessly make it 50 B; these hand-assembled games sit near
+  their entropy floor. Dramatically-smaller programs require authoring at a *higher
+  level* where the game is intrinsically less information — i.e. **arcr's DSL**, not
+  a denser CHIP-8 encoding.
+
 ## Takeaway for the `!chip8` sidequest
 
 Most of the classic corpus is *already* gacha-class without any dictionary (~v10–22
-for the ≤512 B games, which are ~65% of the set). A fair general opcode dictionary
-buys a modest extra ~5 games and a version or two of headroom. The big-payload
-games want **multi-part**, not a dictionary trick. Don't ship a library-as-dict.
+for the ≤512 B games, which are ~65% of the set). The honest extra levers, in order:
+a **range coder** body codec (~10–15% over deflate, portable, lives at the *format*
+layer so capsule stays byte-agnostic); a fair general opcode dictionary (~a version
+or two on novel games); and **multi-part** for the big ones. Don't ship a
+library-as-dict, and don't build a successor ISA for compression (it nets ≈ entropy
+coding). Genuinely dense *new* games are arcr's job, not CHIP-8's.
