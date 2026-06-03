@@ -122,8 +122,16 @@ magic** — it needs a stateful **collector** (a continuous in-app camera scanne
 navigate-per-scan + origin storage), which single capsules never required. So it's
 an opt-in *companion* layer above the resolver (like the badge protocol §15), not
 core. Includes the **mad version** — fountain/erasure codes (LT/Raptor/RaptorQ) so
-*any* ~N of a printed pile reconstruct, loss-tolerant gacha — as a "someday." Still
-build-when-pulled (first motivating case: the CHIP-8 arcade below).
+*any* ~N of a printed pile reconstruct, loss-tolerant gacha — as a "someday."
+
+**Leading consumer: Hopper** (`gentropic/hopper`) — already a capsule consumer
+(form defs as capsules), and its `SPEC-hopper-paper` is independently re-deriving
+multipart (content-address + page `i/n` reassembly, paper-as-capsule, a
+content-verified blob lane). Multipart fits its *opaque large* payloads (big
+form/edition capsules for paper backup, attachment blobs) — **not** its
+schema-relative positional record codec. The real task is **alignment** so the two
+don't drift into incompatible framings (the reason capsule was extracted). CHIP-8
+is a secondary, unbuilt case. Still build-when-pulled — but Hopper is a real pull.
 
 ## Exploratory — CHIP-8 micro-emulator (a cradle/arcr sibling)
 

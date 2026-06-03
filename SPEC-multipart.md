@@ -37,6 +37,30 @@ extension**, not a property of capsules generally. Reach for it only when the
 payload genuinely won't fit one code; prefer a reference scheme (`gh:`/`gist:`) or
 a smaller payload first.
 
+### 1.1 Motivating consumers (and an alignment obligation)
+
+- **Hopper** (`gentropic/hopper`) — the leading concrete consumer. Hopper already
+  carries form *definitions* as capsules (`SPEC-hopper-form` §3), and its
+  `SPEC-hopper-paper` is independently designing the same thing this spec sketches:
+  a header QR that carries a content-address + **page index/count** and *"reassembles
+  multi-page sets"*, **paper-as-capsule** (a sheet's QR carries the form capsule to
+  bootstrap offline), and a content-verified **blob lane** for attachments. Its
+  paper QRs are explicitly *"capsule-class… the cousin of cradle's dispatcher."*
+  The multipart fit is the **opaque, large** slice — a big form-definition or
+  edition/registry capsule printed for paper backup, or attachment blobs over QR.
+  It is **not** for Hopper's *schema-relative positional codec* (a record → ~20-byte
+  positional tuple against the known tree, `SPEC-hopper-records` §10), which is a
+  cleverer higher-level compaction capsule should never touch.
+
+  **Alignment obligation:** Hopper's "content-address + `i/n` reassembly" and its
+  content-verified blob lane are this spec's `mp:<setid>:<i>/<n>` and content-hash
+  `setid` by another name. These MUST be co-designed / single-sourced rather than
+  drift into two incompatible framings — the exact cross-repo divergence that
+  motivated extracting `@gcu/capsule` in the first place. When multipart is built,
+  reconcile with `SPEC-hopper-paper` (and vice-versa).
+- **The CHIP-8 arcade** (cradle, exploratory) — a secondary, unbuilt case: ~3.5 KB
+  ROMs across ~7–12 QR stickers (ROADMAP). Lower pull than Hopper today.
+
 ---
 
 ## 2. Wire format (ordered parts — the v1 design)
